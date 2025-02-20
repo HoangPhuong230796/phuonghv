@@ -3,48 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bài Trắc Nghiệm</title>
+    <title>Trắc nghiệm</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .question { margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; }
-        .correct { color: green; font-weight: bold; }
-        .wrong { color: red; font-weight: bold; }
+        .correct { color: green; }
+        .incorrect { color: red; }
     </style>
 </head>
 <body>
-    <h2>Bài Trắc Nghiệm</h2>
-    <div id="quiz"></div>
-    <button onclick="checkAnswers()">Nộp Bài</button>
-    <script>
-        async function loadQuiz() {
-            const response = await fetch('quiz_data.json');
-            const questions = await response.json();
-            const quizContainer = document.getElementById('quiz');
-            
-            questions.forEach((q, index) => {
-                const div = document.createElement('div');
-                div.classList.add('question');
-                div.innerHTML = `<p><strong>${index + 1}. ${q.question}</strong></p>` +
-                    Object.entries(q.options).map(([key, value]) =>
-                        `<label><input type="radio" name="q${index}" value="${key}"> ${key}. ${value}</label><br>`
-                    ).join('');
-                div.setAttribute('data-answer', q.answer);
-                quizContainer.appendChild(div);
-            });
-        }
-
-        function checkAnswers() {
-            document.querySelectorAll('.question').forEach(q => {
-                const selected = q.querySelector('input[type=radio]:checked');
-                if (selected) {
-                    const isCorrect = selected.value === q.getAttribute('data-answer');
-                    q.style.backgroundColor = isCorrect ? '#d4edda' : '#f8d7da';
-                    q.innerHTML += `<p class="${isCorrect ? 'correct' : 'wrong'}">Đáp án đúng: ${q.getAttribute('data-answer')}</p>`;
-                }
-            });
-        }
+    <h2>Bài trắc nghiệm</h2>
+    <form id="quizForm">
+        <p>Câu 1: 2 + 2 = ?</p>
+        <input type="radio" name="q1" value="3"> 3
+        <input type="radio" name="q1" value="4"> 4
+        <input type="radio" name="q1" value="5"> 5
         
-        loadQuiz();
+        <p>Câu 2: Thủ đô của Việt Nam?</p>
+        <input type="radio" name="q2" value="HCM"> TP.HCM
+        <input type="radio" name="q2" value="HN"> Hà Nội
+        <input type="radio" name="q2" value="DN"> Đà Nẵng
+        
+        <br><br>
+        <button type="button" onclick="submitQuiz()">Nộp bài</button>
+    </form>
+    
+    <h3>Kết quả:</h3>
+    <p id="score"></p>
+    <ul id="resultList"></ul>
+    
+    <script>
+        const answers = { q1: "4", q2: "HN" };
+        
+        function submitQuiz() {
+            let score = 0;
+            let resultList = document.getElementById("resultList");
+            resultList.innerHTML = "";
+            
+            let form = document.getElementById("quizForm");
+            let formData = new FormData(form);
+            
+            for (let key in answers) {
+                let userAnswer = formData.get(key);
+                let listItem = document.createElement("li");
+                
+                if (userAnswer === answers[key]) {
+                    score++;
+                    listItem.innerHTML = `Câu ${key.slice(1)}: <span class="correct">Đúng</span>`;
+                } else {
+                    listItem.innerHTML = `Câu ${key.slice(1)}: <span class="incorrect">Sai</span> (Đáp án: ${answers[key]})`;
+                }
+                resultList.appendChild(listItem);
+            }
+            
+            document.getElementById("score").innerText = `Bạn trả lời đúng ${score} trên ${Object.keys(answers).length} câu.`;
+        }
     </script>
 </body>
 </html>

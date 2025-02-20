@@ -15,6 +15,7 @@
     <h2>Bài Trắc Nghiệm</h2>
     <div id="quiz"></div>
     <button onclick="checkAnswers()">Nộp Bài</button>
+    <h3 id="score"></h3>
     <script>
         async function loadQuiz() {
             const response = await fetch('quiz_data.json');
@@ -34,14 +35,25 @@
         }
 
         function checkAnswers() {
+            let correctCount = 0;
+            let totalQuestions = document.querySelectorAll('.question').length;
+            
             document.querySelectorAll('.question').forEach(q => {
                 const selected = q.querySelector('input[type=radio]:checked');
-                if (selected) {
-                    const isCorrect = selected.value === q.getAttribute('data-answer');
-                    q.style.backgroundColor = isCorrect ? '#d4edda' : '#f8d7da';
-                    q.innerHTML += `<p class="${isCorrect ? 'correct' : 'wrong'}">Đáp án đúng: ${q.getAttribute('data-answer')}</p>`;
+                const correctAnswer = q.getAttribute('data-answer');
+                let isCorrect = selected && selected.value === correctAnswer;
+                
+                if (isCorrect) {
+                    correctCount++;
+                    q.style.backgroundColor = '#d4edda';
+                } else {
+                    q.style.backgroundColor = '#f8d7da';
                 }
+                
+                q.innerHTML += `<p class="${isCorrect ? 'correct' : 'wrong'}">Đáp án đúng: ${correctAnswer}</p>`;
             });
+            
+            document.getElementById("score").innerText = `Bạn đã trả lời đúng ${correctCount}/${totalQuestions} câu.`;
         }
         
         loadQuiz();
